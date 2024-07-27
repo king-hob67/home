@@ -1,0 +1,14 @@
+# google_nlp.py
+from google.cloud import language
+from google.oauth2 import service_account
+
+credentials = service_account.Credentials.from_service_account_file(
+    "path/to/service_account_key.json"
+)
+
+client = language.LanguageServiceClient(credentials=credentials)
+
+def analyze_sentiment(message):
+    document = language.Document(content=message, type_=language.Document.Type.PLAIN_TEXT)
+    response = client.analyze_sentiment(document=document)
+    return response.document_sentiment.score
