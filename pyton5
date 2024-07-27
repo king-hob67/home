@@ -1,0 +1,58 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Anonymous Messaging</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .message {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+        .message .sender {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Anonymous Messaging</h1>
+    <form id="send-message-form">
+        <input type="text" id="sender" placeholder="Sender">
+        <input type="text" id="recipient" placeholder="Recipient">
+        <textarea id="message" placeholder="Message"></textarea>
+        <button type="submit">Send</button>
+    </form>
+    <div id="messages">
+        <!-- messages will be displayed here -->
+    </div>
+
+    <script>
+        const form = document.getElementById("send-message-form");
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const sender = document.getElementById("sender").value;
+            const recipient = document.getElementById("recipient").value;
+            const message = document.getElementById("message").value;
+            fetch("/send_message", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ sender, recipient, message })
+            })
+            .then((response) => response.json())
+            .then((data) => console.log(data))
+            .catch((error) => console.error(error));
+        });
+
+        fetch("/get_messages")
+        .then((response) => response.json())
+        .then((messages) => {
+            const messagesDiv = document.getElementById("messages");
+            messages.forEach((message) => {
+                const messageHTML = `
+                    <div class="message">
+                        <span class="sender">${message.sender}</span>
+                        <span>${message.message}</span>
