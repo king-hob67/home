@@ -1,0 +1,31 @@
+# app.py
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///messages.db"
+db = SQLAlchemy(app)
+
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sender = db.Column(db.String(100), nullable=False)
+    recipient = db.Column(db.String(100), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+
+@app.route("/send_message", methods=["POST"])
+def send_message():
+    sender = request.form["sender"]
+    recipient = request.form["recipient"]
+    message = request.form["message"]
+    msg = Message(sender=sender, recipient=recipient, message=message)
+    db.session.add(msg)
+    db.session.commit()
+    return jsonify({"message": "Message sent successfully"})
+
+@app.route("/get_messages", methods=["GET"])
+def get_messages():
+    messages = Message.query.all()
+    return jsonify([{"sender": msg.sender, "recipient": msg.recipient, "message": msg.message} for msg in messages])
+
+if __name__ == "__main__":
+    app.run(debug=True)
